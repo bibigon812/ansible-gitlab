@@ -1,0 +1,28 @@
+---
+- hosts: gitlab
+  tasks:
+    - name: create gitlab folders
+      file:
+        path: /srv/gitlab
+        owner: root
+        group: root
+        state: directory
+
+    - name: run gitlab
+      docker_container:
+        state: started
+        name: gitlab
+        image: gitlab/gitlab-ce
+        pull: true
+        log_driver: none
+        restart_policy: always
+        published_ports:
+          - "22:22"
+          - 80:80
+          - 443:443
+        volumes:
+          - /srv/gitlab/config:/etc/gitlab
+          - /srv/gitlab/logs:/var/log/gitlab
+          - /srv/gitlab/data:/var/opt/gitlab
+        env:
+          GITLAB_OMNIBUS_CONFIG: "{{ gitlab_omnibus_config }}"
